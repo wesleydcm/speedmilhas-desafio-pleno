@@ -1,12 +1,14 @@
 import { Injectable } from "@nestjs/common";
 import { SupplierAAdapter } from "src/suppliers/adapters/supplier-a.adapter";
 import { SupplierBAdapter } from "src/suppliers/adapters/supplier-b.adapter";
+import { SupplierCAdapter } from "src/suppliers/adapters/supplier-c.adapter";
 
 @Injectable()
 export class SearchService {
   constructor(
     private readonly supplierA: SupplierAAdapter,
     private readonly supplierB: SupplierBAdapter,
+    private readonly supplierC: SupplierCAdapter,
   ) {}
 
   async search(origin: string, destination: string, date: string) {
@@ -17,6 +19,7 @@ export class SearchService {
     const tasks = [
       this.supplierA.fetchQuotes({ origin, destination, date, signal }),
       this.supplierB.fetchQuotes({ origin, destination, date, signal }),
+      this.supplierC.fetchQuotes({ origin, destination, date, signal }),
     ];
 
     const results = await Promise.allSettled(tasks);
@@ -34,6 +37,10 @@ export class SearchService {
       {
         name: this.supplierB.name,
         status: results[1].status === "fulfilled" ? "ok" : "failed",
+      },
+      {
+        name: this.supplierC.name,
+        status: results[2].status === "fulfilled" ? "ok" : "failed",
       },
     ];
 

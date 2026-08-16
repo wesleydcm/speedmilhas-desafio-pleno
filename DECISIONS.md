@@ -30,7 +30,7 @@ Quais ferramentas (Claude Code, Codex, Cursor, ChatGPT…), com que método (spe
 com agente, pair, revisão) — e **um ponto concreto onde você discordou dela** e seguiu por
 outro caminho.
 
-<!-- sua resposta aqui -->
+Utilizei Gemini, Cursor e Copilot como apoio em formato de pair programming para brainstorm de arquitetura e refatoração contínua. Onde discordei: Ao traçar o plano de ação, a IA sugeriu iniciar o projeto pela modelagem do banco (Prisma). Discordei e exigi focar primeiro na orquestração da busca (RF1), aplicando o princípio de YAGNI(You Aren't Gonna Need It), já que o consumo dos fornecedores não tinha nenhuma dependência de persistência.
 
 ---
 
