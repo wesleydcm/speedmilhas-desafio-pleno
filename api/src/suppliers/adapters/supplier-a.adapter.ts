@@ -31,8 +31,8 @@ export class SupplierAAdapter implements SupplierAdapter {
         return data.results.map((flight: any) => ({
           provider: this.name,
           airline: flight.carrier,
-          miles: flight.miles,
-          taxBrl: flight.taxes_brl,
+          miles: Number(flight.miles),
+          taxBrl: Number(flight.taxes_brl),
         }));
       } catch (error: any) {
         attempt++;
@@ -40,7 +40,7 @@ export class SupplierAAdapter implements SupplierAdapter {
         // Se o erro for de Timeout (AbortError), não fazemos retry, pois o tempo global já esgotou
         if (error.name === "AbortError") {
           this.logger.warn(
-            `Request aborted by timeout for ${search.origin}-${search.destination} ${search.date}. No more retries.`,
+            `Request aborted by timeout for ${this.name} (${search.origin}-${search.destination} ${search.date}). No more retries.`,
           );
           throw error;
         }
@@ -48,14 +48,14 @@ export class SupplierAAdapter implements SupplierAdapter {
         // Se ainda temos tentativas, fazemos log de aviso (WARN) e o loop continua
         if (attempt <= maxRetries) {
           this.logger.warn(
-            `Attempt ${attempt} failed for ${search.origin}-${search.destination} ${search.date}. Retrying... (${error.message})`,
+            `Attempt ${attempt} failed for ${this.name} (${search.origin}-${search.destination} ${search.date}). Retrying... (${error.message})`,
           );
           continue;
         }
 
         // Se esgotaram as tentativas, disparamos o erro (ERROR)
         this.logger.error(
-          `Exhausted retries for ${search.origin}-${search.destination} ${search.date}. Final error: ${error.message}`,
+          `Exhausted retries for ${this.name} (${search.origin}-${search.destination} ${search.date}). Final error: ${error.message}`,
         );
         throw error;
       }
