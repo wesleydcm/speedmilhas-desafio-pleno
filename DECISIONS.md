@@ -8,10 +8,11 @@ Objetividade vale mais que volume. Duas frases boas batem dois parágrafos gené
 ---
 
 ## 1. O que acontece quando o fornecedor B demora 8 segundos?
+O orquestrador (SearchService) aborta a requisição dele e retorna resultados parciais.
 
 E por que você escolheu essa estratégia e não outra?
 
-<!-- sua resposta aqui -->
+Eu escolhi usar o AbortController com um timeout global de 5.5s atrelado a um Promise.allSettled. Ao invés de apenas ignorar a promessa lenta (o que deixaria a conexão travando recursos de memória na thread Node), o sinal do AbortController é passado para o adaptador (via fetch), cortando ativamente o soquete de rede no limite de tempo, liberando os recursos e impedindo falhas em cascata.
 
 ---
 

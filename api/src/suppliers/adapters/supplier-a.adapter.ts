@@ -13,23 +13,54 @@ export class SupplierAAdapter implements SupplierAdapter {
   async fetchQuotes(search: SearchInput): Promise<NormalizedQuote[]> {
     const url = `http://localhost:4000/supplier-a/quotes?origin=${search.origin}&destination=${search.destination}&date=${search.date}`;
 
-    try {
-      const response = await fetch(url, { signal: search.signal });
-      if (!response.ok)
-        throw new Error(`supplier-a failed HTTP ${response.status}`);
+    // Parâmetros de Redundância
+    const maxRetries = 2;
+    let attempt = 0;
 
-      const data = await response.json();
-      if (!data.results) return [];
+    while (attempt <= maxRetries) {
+      try {
+        const response = await fetch(url, { signal: search.signal });
 
-      return data.results.map((flight: any) => ({
-        provider: this.name,
-        airline: flight.carrier,
-        miles: flight.miles,
-        taxBrl: flight.taxes_brl,
-      }));
-    } catch (error: any) {
-      this.logger.error(`Falha ao buscar voos: ${error.message}`);
-      throw error;
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}`);
+        }
+
+        const data = await response.json();
+        if (!data.results) return [];
+
+        return data.results.map((flight: any) => ({
+          provider: this.name,
+          airline: flight.carrier,
+          miles: flight.miles,
+          taxBrl: flight.taxes_brl,
+        }));
+      } catch (error: any) {
+        attempt++;
+
+        // Se o erro for de Timeout (AbortError), não fazemos retry, pois o tempo global já esgotou
+        if (error.name === "AbortError") {
+          this.logger.warn(
+            `Request aborted by timeout for ${search.origin}-${search.destination} ${search.date}. No more retries.`,
+          );
+          throw error;
+        }
+
+        // Se ainda temos tentativas, fazemos log de aviso (WARN) e o loop continua
+        if (attempt <= maxRetries) {
+          this.logger.warn(
+            `Attempt ${attempt} failed for ${search.origin}-${search.destination} ${search.date}. Retrying... (${error.message})`,
+          );
+          continue;
+        }
+
+        // Se esgotaram as tentativas, disparamos o erro (ERROR)
+        this.logger.error(
+          `Exhausted retries for ${search.origin}-${search.destination} ${search.date}. Final error: ${error.message}`,
+        );
+        throw error;
+      }
     }
+
+    return [];
   }
 }
