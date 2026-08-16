@@ -1,4 +1,8 @@
-import { Module } from '@nestjs/common';
+import { Module } from "@nestjs/common";
+import { SupplierAAdapter } from "./adapters/supplier-a.adapter";
 
-@Module({})
+@Module({
+  providers: [SupplierAAdapter],
+  exports: [SupplierAAdapter],
+})
 export class SuppliersModule {}
