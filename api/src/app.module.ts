@@ -1,4 +1,6 @@
 import { Module } from '@nestjs/common';
+import { SuppliersModule } from './suppliers/suppliers.module';
+import { SearchModule } from './search/search.module';
 
 /**
  * Este módulo está vazio de propósito.
@@ -8,7 +10,7 @@ import { Module } from '@nestjs/common';
  * do que está sendo avaliado. Não existe estrutura "certa" esperada aqui.
  */
 @Module({
-  imports: [],
+  imports: [SuppliersModule, SearchModule],
   controllers: [],
   providers: [],
 })
