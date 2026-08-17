@@ -6,9 +6,10 @@ import { PrismaService } from "../prisma/prisma.service";
 describe("OrdersService - Concorrência e Idempotência", () => {
   let service: OrdersService;
   let prisma: PrismaService;
+  let module: TestingModule;
 
   beforeAll(async () => {
-    const module: TestingModule = await Test.createTestingModule({
+    module = await Test.createTestingModule({
       providers: [OrdersService, PrismaService],
     }).compile();
 
@@ -23,13 +24,14 @@ describe("OrdersService - Concorrência e Idempotência", () => {
 
   afterAll(async () => {
     await prisma.$disconnect();
+    await module.close();
   });
 
   it("deve processar múltiplas requisições simultâneas e criar apenas UMA reserva (Idempotência)", async () => {
     const idempotencyKey = `teste-concorrencia-${Date.now()}`;
     const payload = {
       quoteId: "latam-123",
-      passageiro: "Wesley Sênior",
+      passageiro: "Wesley SpeedMilhas",
       idempotencyKey,
     };
 
