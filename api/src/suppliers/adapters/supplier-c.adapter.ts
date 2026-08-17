@@ -11,7 +11,10 @@ export class SupplierCAdapter implements SupplierAdapter {
   readonly name = "Supplier-C";
   private readonly logger = new Logger(SupplierCAdapter.name);
 
-  async fetchQuotes(search: SearchInput): Promise<NormalizedQuote[]> {
+  async fetchQuotes(
+    search: SearchInput,
+    signal: AbortSignal,
+  ): Promise<NormalizedQuote[]> {
     const url = `http://localhost:4000/supplier-c/v2/quotes`;
 
     const maxRetries = 2;
@@ -27,7 +30,7 @@ export class SupplierCAdapter implements SupplierAdapter {
             destination: search.destination,
             date: search.date,
           }),
-          signal: search.signal,
+          signal: signal,
         });
 
         if (!response.ok) {

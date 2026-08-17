@@ -4,7 +4,6 @@ export type SearchInput = {
   origin: string;
   destination: string;
   date: string;
-  signal: AbortSignal;
 };
 
 export interface NormalizedQuote {
@@ -16,5 +15,8 @@ export interface NormalizedQuote {
 
 export interface SupplierAdapter {
   readonly name: SupplierName;
-  fetchQuotes(search: SearchInput): Promise<NormalizedQuote[]>;
+  fetchQuotes(
+    search: SearchInput,
+    signal: AbortSignal,
+  ): Promise<NormalizedQuote[]>;
 }

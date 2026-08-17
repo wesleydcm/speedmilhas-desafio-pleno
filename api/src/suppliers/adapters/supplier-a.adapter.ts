@@ -10,7 +10,10 @@ export class SupplierAAdapter implements SupplierAdapter {
   readonly name = "Supplier-A";
   private readonly logger = new Logger(SupplierAAdapter.name);
 
-  async fetchQuotes(search: SearchInput): Promise<NormalizedQuote[]> {
+  async fetchQuotes(
+    search: SearchInput,
+    signal: AbortSignal,
+  ): Promise<NormalizedQuote[]> {
     const url = `http://localhost:4000/supplier-a/quotes?origin=${search.origin}&destination=${search.destination}&date=${search.date}`;
 
     // Parâmetros de Redundância
@@ -19,7 +22,7 @@ export class SupplierAAdapter implements SupplierAdapter {
 
     while (attempt <= maxRetries) {
       try {
-        const response = await fetch(url, { signal: search.signal });
+        const response = await fetch(url, { signal: signal });
 
         if (!response.ok) {
           throw new Error(`HTTP ${response.status}`);

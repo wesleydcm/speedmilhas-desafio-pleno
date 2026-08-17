@@ -2,6 +2,11 @@ import { Injectable } from "@nestjs/common";
 import { SupplierAAdapter } from "src/suppliers/adapters/supplier-a.adapter";
 import { SupplierBAdapter } from "src/suppliers/adapters/supplier-b.adapter";
 import { SupplierCAdapter } from "src/suppliers/adapters/supplier-c.adapter";
+import { SearchResponse } from "./interfaces/search-response.interface";
+import {
+  NormalizedQuote,
+  SearchInput,
+} from "src/suppliers/interfaces/supplier.interface";
 
 @Injectable()
 export class SearchService {
@@ -11,43 +16,52 @@ export class SearchService {
     private readonly supplierC: SupplierCAdapter,
   ) {}
 
-  async search(origin: string, destination: string, date: string) {
+  async search(
+    origin: string,
+    destination: string,
+    date: string,
+  ): Promise<SearchResponse> {
     const controller = new AbortController();
     const signal = controller.signal;
-    const timeoutId = setTimeout(() => controller.abort(), 5500);
+    const SEARCH_DEADLINE_MS = 5700;
+    const timeoutId = setTimeout(() => controller.abort(), SEARCH_DEADLINE_MS);
+
+    const searchInput: SearchInput = { origin, destination, date };
 
     const tasks = [
-      this.supplierA.fetchQuotes({ origin, destination, date, signal }),
-      this.supplierB.fetchQuotes({ origin, destination, date, signal }),
-      this.supplierC.fetchQuotes({ origin, destination, date, signal }),
+      this.supplierA.fetchQuotes(searchInput, signal),
+      this.supplierB.fetchQuotes(searchInput, signal),
+      this.supplierC.fetchQuotes(searchInput, signal),
     ];
 
     const results = await Promise.allSettled(tasks);
     clearTimeout(timeoutId);
 
-    const quotes = results.flatMap((result) =>
-      result.status === "fulfilled" ? result.value : [],
-    );
-
+    const flights: NormalizedQuote[] = [];
+    const failedProviders: string[] = [];
     const providers = [
-      {
-        name: this.supplierA.name,
-        status: results[0].status === "fulfilled" ? "ok" : "failed",
-      },
-      {
-        name: this.supplierB.name,
-        status: results[1].status === "fulfilled" ? "ok" : "failed",
-      },
-      {
-        name: this.supplierC.name,
-        status: results[2].status === "fulfilled" ? "ok" : "failed",
-      },
+      this.supplierA.name,
+      this.supplierB.name,
+      this.supplierC.name,
     ];
 
+    results.forEach((result, index) => {
+      if (result.status === "fulfilled") {
+        flights.push(...result.value);
+      } else {
+        failedProviders.push(providers[index]);
+      }
+    });
+
+    flights.sort((a, b) => a.miles - b.miles);
+
     return {
-      partial: providers.some((p) => p.status === "failed"),
-      quotes: quotes.sort((a, b) => a.miles - b.miles),
-      providers,
+      partial: failedProviders.length > 0,
+      metadata: {
+        total: flights.length,
+        failedProviders,
+      },
+      data: flights,
     };
   }
 }

@@ -10,7 +10,10 @@ export class SupplierBAdapter implements SupplierAdapter {
   readonly name = "Supplier-B";
   private readonly logger = new Logger(SupplierBAdapter.name);
 
-  async fetchQuotes(search: SearchInput): Promise<NormalizedQuote[]> {
+  async fetchQuotes(
+    search: SearchInput,
+    signal: AbortSignal,
+  ): Promise<NormalizedQuote[]> {
     const url = `http://localhost:4000/supplier-b/search?from=${search.origin}&to=${search.destination}&day=${search.date}`;
 
     const maxRetries = 2;
@@ -18,7 +21,7 @@ export class SupplierBAdapter implements SupplierAdapter {
 
     while (attempt <= maxRetries) {
       try {
-        const response = await fetch(url, { signal: search.signal });
+        const response = await fetch(url, { signal: signal });
 
         if (!response.ok) {
           if (response.status === 429) {
