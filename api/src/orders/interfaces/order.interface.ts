@@ -15,5 +15,4 @@ export interface OrderResponse {
     createdAt: string;
     updatedAt: string;
   };
-  duplicate?: boolean;
 }
