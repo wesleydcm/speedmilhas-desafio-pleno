@@ -20,7 +20,9 @@ Eu escolhi usar o AbortController com um timeout global de 5.5s atrelado a um Pr
 
 E o que quebra se subirem três instâncias da aplicação?
 
-<!-- sua resposta aqui -->
+Garanto a unicidade delegando o controle de concorrência exclusivamente para o banco de dados via constraint UNIQUE na coluna idempotencyKey. O primeiro request insere a reserva; os concorrentes sofrem bloqueio do PostgreSQL (erro P2002 no Prisma), que o código captura para buscar e devolver a reserva recém-criada.
+
+Se subirem três instâncias da aplicação, absolutamente nada quebra. Como o "lock" não é feito na memória da aplicação (Node.js), o sistema escala horizontalmente mantendo a consistência transacional centralizada no banco.
 
 ---
 
