@@ -1,4 +1,5 @@
 import type { SearchResponse, SearchStatus } from "@/hooks/use-search-flights";
+import { getProviderLabel } from "./provider-labels";
 
 type SearchAlertProps = {
   status: SearchStatus;
@@ -18,7 +19,7 @@ export function SearchAlert({
           Informe origem, destino e data para consultar os fornecedores.
         </p>
         <p className="mt-2 text-sm text-slate-500">
-          Consultamos Supplier-A, Supplier-B e Supplier-C em paralelo.
+          Consultamos nossos parceiros de emissao em paralelo.
         </p>
       </div>
     );
@@ -59,6 +60,14 @@ export function SearchAlert({
               {result.metadata.total}. Alguns fornecedores não responderam a
               tempo.
             </p>
+            {result.metadata.failedProviders.length > 0 && (
+              <p className="mt-2 text-xs text-amber-800">
+                Indisponiveis agora:{" "}
+                {result.metadata.failedProviders
+                  .map((provider) => getProviderLabel(provider))
+                  .join(", ")}
+              </p>
+            )}
           </div>
           <span className="inline-flex w-fit rounded-full bg-amber-100 px-2.5 py-1 text-xs font-medium text-amber-800 ring-1 ring-amber-200">
             {result.metadata.failedProviders.length} fornecedor(es) fora

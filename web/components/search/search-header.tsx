@@ -2,7 +2,7 @@ import { BrandMark } from "@/components/brand-mark";
 
 export function SearchHeader() {
   return (
-    <header className="theme-brand-gradient theme-brand-shadow w-full px-4 py-4 md:px-6 lg:px-8">
+    <header className="theme-brand-gradient theme-brand-shadow w-full px-4 py-8 md:px-6 lg:px-8">
       <div className="mx-auto flex max-w-6xl items-center gap-4">
         <BrandMark />
         <div className="flex flex-col items-baseline gap-2">
