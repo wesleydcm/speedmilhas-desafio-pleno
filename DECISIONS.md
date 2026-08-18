@@ -38,4 +38,4 @@ Utilizei Gemini, Cursor e Copilot como apoio em formato de pair programming para
 
 ## 4. Quanto tempo você demorou para concluir o desafio?
 
-<!-- sua resposta aqui -->
+Aproximadamente 16 horas.
